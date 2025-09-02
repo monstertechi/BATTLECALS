@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battleclash Tournament</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* General Styles */
+        :root {
+            --dark-bg: #1a1a2e;
+            --secondary-bg: #0d0d1a;
+            --neon-blue: #00f0ff;
+            --neon-purple: #9200ff;
+            --neon-green: #00ff6a;
+            --text-color: #f0f0f0;
+            --glow-strength-sm: 0 0 5px, 0 0 10px, 0 0 15px;
+            --glow-strength-md: 0 0 10px, 0 0 20px, 0 0 30px;
+            --glow-strength-lg: 0 0 15px, 0 0 30px, 0 0 45px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scroll from potential animations */
+            line-height: 1.6;
+        }
+
+        /* Utility Classes for Glow */
+        .text-glow-blue { text-shadow: var(--glow-strength-md) var(--neon-blue); }
+        .text-glow-purple { text-shadow: var(--glow-strength-md) var(--neon-purple); }
+        .text-glow-green { text-shadow: var(--glow-strength-md) var(--neon-green); }
+
+        /* Header - Battleclash Title */
+        .header {
+            text-align: center;
+            padding: 80px 20px;
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: linear-gradient(180deg, var(--secondary-bg) 0%, var(--dark-bg) 100%);
+        }
+
+        .battleclash-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5em;
+            color: var(--text-color);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            letter-spacing: 2px;
+        }
+
+        .battlebattle-title span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50px);
+            /* Initial glow is added by GSAP */
+            text-shadow: none;
+        }
+
+        /* Animated Counters Section */
+        .counters-section {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            padding: 100px 20px;
+            gap: 40px;
+            background-color: var(--secondary-bg);
+            border-top: 1px solid rgba(0, 240, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .counter-item {
+            text-align: center;
+            flex: 1;
+            min-width: 280px;
+            max-width: 32%;
+            padding: 30px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: var(--glow-strength-sm) rgba(0, 240, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .counter-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .counter-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            padding: 3px; /* Border thickness */
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-green));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: 1;
+        }
+
+        .counter-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4em;
+            font-weight: bold;
+            color: var(--neon-green);
+            text-shadow: var(--glow-strength-lg) var(--neon-green);
+            margin-bottom: 10px;
+            transition: all 0.3s ease-out;
+            line-height: 1;
+        }
+
+        .counter-label {
+            font-size: 1.3em;
+            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Screenshot Section */
+        .screenshot-section {
+            padding: 100px 20px;
+            text-align: center;
+            background-color: var(--dark-bg);
+        }
+
+        .screenshot-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            color: var(--text-color);
+            text-shadow: var(--glow-strength-lg) var(--neon-purple);
+            margin-bottom: 80px;
+        }
+
+        .iphone-frame-container {
+            position: relative;
+            width: 350px; /* Base width for iPhone frame */
+            height: 700px; /* Base height for iPhone frame */
+            background-color: #000;
+            border-radius: 45px; /* Rounded corners of the phone */
+            padding: 12px; /* Bezel thickness */
+            box-shadow: var(--glow-strength-lg) var(--neon-blue), inset 0 0 20px rgba(0, 240, 255, 0.5);
+            margin: 0 auto 80px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Crucial to contain screenshot movement */
+            transition: transform 0.5s ease-out;
+        }
+        .iphone-frame-container:hover {
+            transform: scale(1.02);
+        }
+
+
+        .iphone-frame-container::before { /* Notch */
+            content: '';
+            position: absolute;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 30px;
+            background-color: #000;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 2;
+        }
+
+        .iphone-frame-container::after { /* Home button / bottom speaker */
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 6px;
+            background-color: #333;
+            border-radius: 6px;
+            z-index: 2;
+        }
+
+        .iphone-screen {
+            width: calc(100% - 24px); /* (2 * padding) */
+            height: calc(100% - 24px);
+            border-radius: 35px; /* Inner screen radius, slightly smaller than frame */
+            background-color: #333; /* Placeholder for screen */
+            overflow: hidden; /* Ensure images don't spill */
+        }
+
+        .swiper-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 30px; /* Match inner screen aesthetic */
+            transform-origin: center center; /* For shake animation */
+        }
+
+        .swiper-pagination-bullet {
+            background-color: var(--neon-blue);
+            opacity: 0.5;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+        }
+
+        .swiper-pagination-bullet-active {
+            background-color: var(--neon-purple);
+            opacity: 1;
+            box-shadow: var(--glow-strength-sm) var(--neon-purple);
+        }
+
+        /* Download Button */
+        .download-section {
+            text-align: center;
+            padding: 100px 20px;
+            background-color: var(--secondary-bg);
+            border-top: 1px solid rgba(146, 0, 255, 0.1);
+        }
+
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 20px;
+            padding: 25px 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--text-color);
+            background: transparent;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            outline: none;
+            transition: all 0.3s ease-in-out;
+            text-shadow: var(--glow-strength-md) var(--neon-green);
+        }
+
+        .download-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 60px;
+            padding: 4px; /* Border thickness */
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-green));
+            background-size: 200% 200%; /* For animation */
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            animation: gradientBorder 4s linear infinite;
+        }
+
+        .download-button .arrow {
+            font-size: 1.6em;
+            display: inline-block;
+            color: var(--neon-green);
+            text-shadow: var(--glow-strength-md) var(--neon-green);
+        }
+
+        /* Animated gradient border keyframes */
+        @keyframes gradientBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #000;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(146, 0, 255, 0.1);
+            font-size: 0.95em;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            color: rgba(240, 240, 240, 0.7);
+        }
+
+        .footer a {
+            color: var(--neon-purple);
+            text-decoration: none;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--neon-blue);
+            text-shadow: var(--glow-strength-sm) var(--neon-blue);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 992px) {
+            .battleclash-title {
+                font-size: 4em;
+            }
+            .counter-item {
+                max-width: 48%;
+            }
+            .counter-number {
+                font-size: 3.5em;
+            }
+            .counter-label {
+                font-size: 1.1em;
+            }
+            .screenshot-section h2 {
+                font-size: 2.5em;
+            }
+            .iphone-frame-container {
+                width: 320px;
+                height: 640px;
+                border-radius: 40px;
+                padding: 10px;
+            }
+            .iphone-screen {
+                border-radius: 30px;
+            }
+            .download-button {
+                font-size: 1.8em;
+                padding: 20px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 60px 20px;
+            }
+            .battleclash-title {
+                font-size: 3em;
+                letter-spacing: 1px;
+            }
+            .counters-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+                padding: 60px 20px;
+            }
+            .counter-item {
+                width: 90%;
+                min-width: unset;
+                max-width: 90%;
+                padding: 25px;
+            }
+            .counter-number {
+                font-size: 3em;
+            }
+            .counter-label {
+                font-size: 1em;
+            }
+            .screenshot-section h2 {
+                font-size: 2em;
+                margin-bottom: 60px;
+            }
+            .iphone-frame-container {
+                width: 280px;
+                height: 570px;
+                border-radius: 35px;
+                padding: 8px;
+            }
+            .iphone-frame-container::before {
+                width: 120px;
+                height: 25px;
+            }
+            .iphone-screen {
+                border-radius: 28px;
+            }
+            .download-button {
+                padding: 18px 35px;
+                font-size: 1.5em;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 40px 10px;
+            }
+            .battleclash-title {
+                font-size: 2.2em;
+                letter-spacing: 0px;
+            }
+            .battleclash-title span {
+                transform: translateY(30px);
+            }
+            .counters-section {
+                padding: 40px 10px;
+            }
+            .counter-item {
+                padding: 20px;
+                min-width: 250px;
+            }
+            .counter-number {
+                font-size: 2.5em;
+            }
+            .counter-label {
+                font-size: 0.9em;
+            }
+            .screenshot-section {
+                padding: 40px 10px;
+            }
+            .screenshot-section h2 {
+                font-size: 1.8em;
+                margin-bottom: 40px;
+            }
+            .iphone-frame-container {
+                width: 240px;
+                height: 480px;
+                border-radius: 30px;
+                padding: 6px;
+            }
+            .iphone-frame-container::before {
+                width: 100px;
+                height: 20px;
+            }
+            .iphone-screen {
+                border-radius: 25px;
+            }
+            .download-button {
+                font-size: 1.3em;
+                padding: 15px 30px;
+                gap: 10px;
+            }
+            .download-button .arrow {
+                font-size: 1.4em;
+            }
+            .footer {
+                padding: 20px 10px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section - battleclash Title -->
+    <header class="header">
+        <h1 class="battleclash-title">
+            <!-- Text will be split into spans by JS -->
+        </h1>
+    </header>
+
+    <!-- Animated Counters Section -->
+    <section class="counters-section">
+        <div class="counter-item" data-aos="fade-up">
+            <div class="counter-number" data-target="1000" data-start="100" data-animation="shake">0</div>
+            <div class="counter-label">Tournaments Hosted</div>
+        </div>
+        <div class="counter-item" data-aos="fade-up" data-aos-delay="200">
+            <div class="counter-number" data-target="1000" data-start="100" data-animation="zoom">0</div>
+            <div class="counter-label">Tournaments Played</div>
+        </div>
+        <div class="counter-item" data-aos="fade-up" data-aos-delay="400">
+            <div class="counter-number" data-target="5000" data-start="1000" data-animation="slide">0</div>
+            <div class="counter-label">Daily Winners</div>
+        </div>
+    </section>
+
+    <!-- Screenshot Section -->
+    <section class="screenshot-section">
+        <h2 data-aos="fade-up">App Screenshots</h2>
+        <div class="iphone-frame-container" data-aos="zoom-in" data-aos-delay="200">
+            <div class="iphone-screen">
+                <div class="swiper-container">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide"><img src="https://i.ibb.co/ymDM7bzx/IMG-20250902-WA0047.jpg" alt="App Screenshot 1"></div>
+                        <div class="swiper-slide"><img src="https://i.ibb.co/5gZV9tg8/IMG-20250902-WA0051.jpg" alt="App Screenshot 2"></div>
+                        <div class="swiper-slide"><img src="https://i.ibb.co/TD66ZxLk/IMG-20250902-WA0052.jpg" alt="App Screenshot 3"></div>
+                    </div>
+                    <!-- Add Pagination -->
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Button Section -->
+    <section class="download-section">
+        <a href="https://example.com/download-BATTLE CLASH.apk" target="_blank" class="download-button" id="downloadBtn">
+            Download Now
+            <span class="arrow">➔</span>
+        </a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p><a href="#">Privacy Policy</a></p>
+        <p>All rights reserved &copy; 2024 By Battleclash</p>
+    </footer>
+
+    <!-- GSAP Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/TextPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <!-- Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // GSAP Plugins Registration
+        gsap.registerPlugin(TextPlugin, ScrollTrigger);
+
+        // 1. battleclash Title Animation
+        const titleElement = document.querySelector('.battleclash-title');
+        const titleText = 'battleclash';
+        titleElement.innerHTML = titleText.split('').map(letter => `<span>${letter}</span>`).join('');
+        const titleSpans = titleElement.querySelectorAll('span');
+
+        gsap.from(titleSpans, {
+            opacity: 0,
+            y: 50,
+            stagger: 0.08,
+            ease: "back.out(1.7)",
+            duration: 0.7,
+            onComplete: () => {
+                // Apply continuous glow effect to the text-shadow
+                gsap.to(titleSpans, {
+                    textShadow: `var(--glow-strength-md) var(--neon-blue), var(--glow-strength-md) var(--neon-purple)`,
+                    duration: 0.8,
+                    ease: "power1.out",
+                    stagger: 0.03,
+                    repeat: -1,
+                    yoyo: true
+                });
+            }
+        });
+
+        // 2. Animated Counters Section
+        AOS.init({
+            duration: 1000,
+            easing: 'ease-out-quad',
+            once: true, // Animations happen only once on scroll
+        });
+
+        const counterItems = document.querySelectorAll('.counter-item');
+
+        counterItems.forEach(item => {
+            const numberElement = item.querySelector('.counter-number');
+            const target = parseInt(numberElement.dataset.target);
+            const start = parseInt(numberElement.dataset.start);
+            const animationType = numberElement.dataset.animation;
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 85%", // When the top of the item enters 85% of viewport
+                    toggleActions: "play none none none",
+                    once: true,
+                    // markers: true, // Uncomment for debugging ScrollTrigger
+                    onEnter: () => {
+                        let obj = { count: start };
+                        gsap.to(obj, {
+                            count: target,
+                            duration: 2,
+                            roundProps: "count",
+                            ease: "power1.out",
+                            onUpdate: () => numberElement.textContent = Math.round(obj.count).toLocaleString(),
+                            onComplete: () => {
+                                // Apply continuous animation after counting is complete
+                                if (animationType === 'shake') {
+                                    gsap.to(numberElement, {
+                                        x: "random(-5, 5)",
+                                        y: "random(-5, 5)",
+                                        duration: 0.1,
+                                        repeat: -1,
+                                        yoyo: true,
+                                        ease: "sine.inOut"
+                                    });
+                                } else if (animationType === 'zoom') {
+                                    gsap.to(numberElement, {
+                                        scale: 1.05,
+                                        duration: 0.8,
+                                        repeat: -1,
+                                        yoyo: true,
+                                        ease: "power1.inOut"
+                                    });
+                                } else if (animationType === 'slide') {
+                                    gsap.to(numberElement, {
+                                        x: "random(-10, 10)",
+                                        duration: 1.5,
+                                        repeat: -1,
+                                        yoyo: true,
+                                        ease: "power2.inOut"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        // 3. Screenshot Section - Swiper & Shake
+        const mySwiper = new Swiper('.swiper-container', {
+            loop: true,
+            slidesPerView: 1,
+            spaceBetween: 0,
+            effect: 'slide',
+            speed: 800,
+            autoplay: {
+                delay: 3500,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            on: {
+                // Shake animation on slide change
+                slideChangeTransitionEnd: function () {
+                    const activeSlideImg = this.slides[this.activeIndex].querySelector('img');
+                    gsap.fromTo(activeSlideImg,
+                        { x: 0, y: 0 }, // Ensure starting from no offset
+                        {
+                            x: "random(-3, 3)",
+                            y: "random(-3, 3)",
+                            rotation: "random(-0.5, 0.5)", // Slight rotation for more realism
+                            duration: 0.08,
+                            repeat: 3, // Shake a few times
+                            yoyo: true,
+                            ease: "power1.inOut",
+                            clearProps: "all" // Remove inline styles after animation completes
+                        }
+                    );
+                },
+                // Initial shake on load for the first slide
+                init: function () {
+                    const firstSlideImg = this.slides[this.activeIndex].querySelector('img');
+                     gsap.fromTo(firstSlideImg,
+                        { x: 0, y: 0 },
+                        {
+                            x: "random(-3, 3)",
+                            y: "random(-3, 3)",
+                            rotation: "random(-0.5, 0.5)",
+                            duration: 0.08,
+                            repeat: 3,
+                            yoyo: true,
+                            ease: "power1.inOut",
+                            clearProps: "all"
+                        }
+                    );
+                }
+            }
+        });
+
+        // 4. Download Button Animation
+        const downloadBtn = document.getElementById('downloadBtn');
+        const arrow = downloadBtn.querySelector('.arrow');
+
+        // Pulse effect for the button
+        gsap.to(downloadBtn, {
+            scale: 1.03,
+            repeat: -1,
+            yoyo: true,
+            ease: "power1.inOut",
+            duration: 1.5,
+            // Apply a pulsating box-shadow for a soft glow
+            boxShadow: `0 0 15px var(--neon-blue), 0 0 30px var(--neon-purple), 0 0 45px var(--neon-green)`
+        });
+
+        // Animated arrow effect
+        gsap.to(arrow, {
+            x: 8, // Move arrow to the right
+            repeat: -1,
+            yoyo: true,
+            ease: "power1.inOut",
+            duration: 0.7
+        });
+    </script>
+
+</body>
+</html>
